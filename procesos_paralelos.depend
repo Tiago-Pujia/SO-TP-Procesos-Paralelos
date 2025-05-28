@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1748448288 source:c:\users\diego\desktop\los dominguez\luana unlam\algoritmos\procesos_paralelos\main.c
+	"main.h"
+
+1748449673 c:\users\diego\desktop\los dominguez\luana unlam\algoritmos\procesos_paralelos\main.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<fcntl.h>
+	<sys/mman.h>
+	<unistd.h>
+	<semaphore.h>
+	<time.h>
+	<errno.h>
+	<sys/stat.h>
+	<signal.h>
+	<sys/wait.h>
+
