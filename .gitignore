@@ -1,0 +1,8 @@
+# Archivos temporales y de sistema (Windows)
+desktop.ini
+
+# Archivos PDF no necesarios en el repositorio
+consigna.pdf
+
+# Ejecutables compilados (Windows)
+*.exe

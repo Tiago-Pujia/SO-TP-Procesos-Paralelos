@@ -1,5 +1,11 @@
 #include "main.h"
 
+/**
+ * Este programa simula un sistema de procesamiento paralelo donde múltiples
+ * procesos hijos realizan distintas operaciones sobre un vector de enteros
+ * almacenado en memoria compartida. El acceso concurrente está sincronizado
+ * mediante semáforos, y el proceso padre coordina la vida útil de cada hijo.
+ */
 int main()
 {
     // ----------------------------------------------------
@@ -20,19 +26,19 @@ int main()
     mostrar_vector(vec);
 
     // ----------------------------------------------------
-    // 2. CONFIGURACIÓN DE LOS HIJOS
+    // 2. CONFIGURACIÓN DE LOS PROCESOS HIJOS
     // ----------------------------------------------------
     // Arreglo de estructuras que configuran cada proceso hijo.
     // Cada hijo tiene una operación específica y ciertos bloques asignados.
 
     ConfigHijo hijos_config[NUM_HIJOS] =
     {
-        {0, 'M', 3, 80, 60, {0,3,6}},   // H1: Buscar el máximo en sus bloques cada 3s
-        {0, 'P', 5, 120, 80, {1,4,7}},  // H2: Calcular el promedio cada 5s
-        {0, 'O', 10, 300, 100, {2,5,8}},// H3: Ordenar los valores cada 10s
-        {0, 'D', 8, 200, 120, {0,3,6}}, // H4: Duplicar los valores cada 8s
-        {0, 'N', 7, 250, 49, {9,-1,-1}},  // H5: Reemplazar negativos cada 7s
-        {0, 'I', 12, 400, 60, {2,5,8}}  // H6: Invertir valores en sus bloques cada 12s
+        {0, 'M', 3,  80,  60, {0, 3, 6}},  // H1: Buscar máximo cada 3s
+        {0, 'P', 5, 120,  80, {1, 4, 7}},  // H2: Calcular promedio cada 5s
+        {0, 'O',10, 300, 100, {2, 5, 8}},  // H3: Ordenar valores cada 10s
+        {0, 'D', 8, 200, 120, {0, 3, 6}},  // H4: Duplicar valores cada 8s
+        {0, 'N', 7, 250,  49, {9, -1, -1}},// H5: Reemplazar negativos cada 7s
+        {0, 'I',12, 400,  60, {2, 5, 8}}   // H6: Invertir valores cada 12s
     };
 
     // Arreglo para guardar los PID de los hijos creados
@@ -94,11 +100,15 @@ int main()
         time_t inicio = hijos_config[i].tiempo_inicio;
         time_t fin = hijos_config[i].tiempo_fin;
 
-        // Si ambos tiempos están definidos, se calcula la diferencia
+        // Calcular duración real de vida del proceso hijo
         int duracion_real = (fin != 0 && inicio != 0) ? (int)difftime(fin, inicio) : 0;
 
-        printf("Hijo %d (PID %d) - Operacion %c: Tiempo de vida esperado: %d s, Tiempo real vivo: %d s\n",
-               i+1, hijos_config[i].pid, hijos_config[i].operacion, hijos_config[i].tiempo_vida, duracion_real);
+        printf("Hijo %d (PID %d) - Operación '%c': Tiempo esperado = %d s, Tiempo real = %d s\n",
+               i + 1,
+               hijos_config[i].pid,
+               hijos_config[i].operacion,
+               hijos_config[i].tiempo_vida,
+               duracion_real);
     }
 
     // ----------------------------------------------------
