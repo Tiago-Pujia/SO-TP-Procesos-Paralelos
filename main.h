@@ -74,4 +74,5 @@ void ejecutar_hijo(int* vec, sem_t** mutexes, int id_hijo, ConfigHijo* configs);
 // --- Utilidad ---
 void mostrar_vector(const int* vec);               // Muestra el contenido actual del vector por consola
 
+
 #endif // MAIN_H_INCLUDED

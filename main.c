@@ -16,6 +16,7 @@ int main()
     inicializar_vector(vec);
 
     // Mostrar el contenido inicial del vector
+    printf("\n\t\t----Vector Inicial----\n\n");
     mostrar_vector(vec);
 
     // ----------------------------------------------------
@@ -30,7 +31,7 @@ int main()
         {0, 'P', 5, 120, 80, {1,4,7}},  // H2: Calcular el promedio cada 5s
         {0, 'O', 10, 300, 100, {2,5,8}},// H3: Ordenar los valores cada 10s
         {0, 'D', 8, 200, 120, {0,3,6}}, // H4: Duplicar los valores cada 8s
-        {0, 'N', 7, 250, 49, {9,0,0}},  // H5: Reemplazar negativos cada 7s
+        {0, 'N', 7, 250, 49, {9,-1,-1}},  // H5: Reemplazar negativos cada 7s
         {0, 'I', 12, 400, 60, {2,5,8}}  // H6: Invertir valores en sus bloques cada 12s
     };
 
@@ -96,7 +97,7 @@ int main()
         // Si ambos tiempos están definidos, se calcula la diferencia
         int duracion_real = (fin != 0 && inicio != 0) ? (int)difftime(fin, inicio) : 0;
 
-        printf("Hijo %d (PID %d) - Operación %c: Tiempo de vida esperado: %d s, Tiempo real vivo: %d s\n",
+        printf("Hijo %d (PID %d) - Operacion %c: Tiempo de vida esperado: %d s, Tiempo real vivo: %d s\n",
                i+1, hijos_config[i].pid, hijos_config[i].operacion, hijos_config[i].tiempo_vida, duracion_real);
     }
 
@@ -105,6 +106,7 @@ int main()
     // ----------------------------------------------------
 
     // Muestra cómo quedó el vector compartido tras todas las operaciones
+    printf("\n\n\t\t----Vector Final----\n\n");
     mostrar_vector(vec);
 
     // Liberar recursos del sistema (mutexes y memoria)
