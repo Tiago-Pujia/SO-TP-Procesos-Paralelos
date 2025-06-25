@@ -4,89 +4,87 @@
 
 Este proyecto simula un entorno de **procesamiento concurrente** donde múltiples procesos hijos (workers) realizan distintas operaciones sobre un vector de enteros en **memoria compartida**. La sincronización se realiza mediante **semáforos (mutexes por bloque)** para evitar condiciones de carrera, asegurando que cada proceso trabaje de forma segura y controlada.
 
-## 🔧 Tecnologías y herramientas
+---
 
--   Lenguaje: C (ISO C99)
--   Plataforma: Linux Ubuntu
--   Herramientas:
-    -   `gcc` para compilación
-    -   `shm_open`, `mmap` para memoria compartida
-    -   `sem_open`, `sem_wait`, sem_post para semáforos
-    -   `fork`, `kill`, `waitpid` para gestión de procesos
-    -   Comandos de monitoreo: `ipcs`, `ps`, `htop`, `vmstat`
+## ⚙️ Componentes del Sistema
 
-## 🗂️ Archivos del Proyecto
+### 🔹 1. Memoria Compartida
 
-```
-.
-├── main.c             // Función principal
-├── main.h             // Definiciones y prototipos
-├── funciones.c        // Funciones
-├── README.md          // Este archivo
-```
+- Se reserva un vector de tamaño fijo (`TAM_VECTOR = 100`) usando `mmap`.
+- Este vector se divide en **10 bloques** (`NUM_BLOQUES = 10`), cada uno con 10 elementos.
+- Cada proceso hijo trabaja con **3 bloques específicos**.
 
-## ⚙️ Compilación
+### 🔹 2. Semáforos por Bloque
 
-```
-gcc -Wall -o sistema main.c -lrt -pthread
-```
+- Se crea un **mutex (semáforo POSIX)** por cada bloque.
+- Permite sincronización a nivel de bloque para prevenir accesos simultáneos conflictivos.
 
-## 🔄 Flujo de vida del sistema
+### 🔹 3. Configuración de Procesos Hijos
 
-### 🧩 1. Inicio del programa (main)
+- Se lanzan **6 procesos hijos** (`NUM_HIJOS = 6`), cada uno con:
+  - Tipo de operación (`M`, `P`, `O`, `D`, `N`, `I`).
+  - Frecuencia de ejecución (en segundos).
+  - Duración estimada de su operación (en milisegundos).
+  - Tiempo total de vida (en segundos).
+  - 3 bloques asignados del vector.
 
-El proceso principal (padre) comienza su ejecución.
+### 🔹 4. Operaciones Implementadas
 
--   Se inicializan los recursos compartidos:
-    -   Se crea y mapea un vector de enteros en memoria compartida usando shm_open y mmap.
-    -   Se crean semáforos POSIX con nombre, uno por cada bloque del vector, para sincronizar el acceso entre procesos.
-    -   El vector se rellena con valores aleatorios en el rango [-10, 9].
+Cada hijo ejecuta periódicamente una operación distinta sobre sus bloques:
 
-### 👶 2. Creación de procesos hijos (fork)
+| Código | Operación             | Descripción                                              |
+|--------|------------------------|----------------------------------------------------------|
+| `M`    | Máximo                 | Calcula y muestra el valor máximo de sus bloques.        |
+| `P`    | Promedio               | Calcula y muestra el promedio de sus bloques.            |
+| `O`    | Ordenar                | Ordena los valores de sus bloques.                       |
+| `D`    | Duplicar               | Duplica cada valor de sus bloques.                       |
+| `N`    | Reemplazar negativos   | Reemplaza valores negativos por su valor absoluto.       |
+| `I`    | Invertir               | Invierte el orden de los valores en sus bloques.         |
 
--   Se crean NUM_HIJOS procesos hijos con fork().
-    -   Cada hijo recibe una configuración individual:
-    -   Código de operación
-        | Código | Operación | Descripción |
-        |--------|------------------------|----------------------------------------------------------|
-        | `M` | Máximo | Calcula y muestra el valor máximo de sus bloques. |
-        | `P` | Promedio | Calcula y muestra el promedio de sus bloques. |
-        | `O` | Ordenar | Ordena los valores de sus bloques. |
-        | `D` | Duplicar | Duplica cada valor de sus bloques. |
-        | `N` | Reemplazar negativos | Reemplaza valores negativos por su valor absoluto. |
-        | `I` | Invertir | Invierte el orden de los valores en sus bloques. |
-    -   Frecuencia con la que trabaja (cada X segundos).
-    -   Duración de cada tarea (en milisegundos).
-    -   Tiempo de vida (cuánto tiempo estará activo).
-    -   Qué bloques del vector manipula.
--   Cada hijo ejecuta la función ejecutar_hijo.
+---
 
-### 🧠 3. Ejecución de los procesos hijos
+## 🔁 Ciclo de Vida del Sistema
 
-Cada hijo entra en un ciclo de vida con este patrón:
+1. **Inicialización**
+   - Se crean la memoria compartida y los mutexes.
+   - Se inicializa el vector con valores aleatorios.
 
-1. Espera frecuencia segundos.
-2. Por cada uno de sus bloques asignados:
-    - Espera el semáforo correspondiente (sem_wait).
-    - Realiza su operación (máximo, promedio, ordenar, etc.) sobre el bloque.
-    - Libera el semáforo (sem_post).
-    - Espera duración_ms milisegundos.
-3. Se repite hasta cumplir su tiempo_vida.
+2. **Ejecución Concurrente**
+   - Se crean 6 procesos hijos con `fork()`.
+   - Cada hijo ejecuta periódicamente su operación en los bloques asignados.
+   - Se usan mutexes para garantizar sincronización a nivel de bloque.
 
-### 🧑‍✈️ 4. Supervisión del padre
+3. **Finalización**
+   - El proceso padre espera a que cada hijo complete su tiempo de vida.
+   - Se muestra un resumen del tiempo real vivido por cada hijo.
+   - Se libera la memoria compartida y los semáforos.
 
-Mientras los hijos trabajan, el proceso padre:
+---
 
--   Lleva un contador de tiempo (hasta 130 segundos).
--   Controla el tiempo de vida de cada hijo:
-    -   Si un hijo superó su tiempo de vida → kill(SIGTERM).
-    -   Registra el tiempo de finalización.
--   Al final, espera que todos los hijos terminen (waitpid).
+## 🧩 Estructura de Archivos
 
-### 🧼 5. Finalización y limpieza
+| Archivo         | Descripción                                                                 |
+|-----------------|------------------------------------------------------------------------------|
+| `main.c`        | Función principal. Inicializa todo y gestiona la creación y finalización de hijos. |
+| `main.h`        | Definiciones, constantes, estructuras y prototipos de funciones.             |
+| `herramientas.c`| Funciones auxiliares para la memoria compartida, semáforos y vector.         |
+| `operaciones.c` | Implementación de las 6 operaciones posibles.                                |
+| `hijo.c`        | Implementa la lógica de los hijos: ejecución periódica de operaciones.       |
 
--   Se imprime un resumen de la vida de cada hijo (esperado vs real).
--   Se imprime el vector final luego de todas las modificaciones.
--   Se liberan todos los recursos del sistema:
-    -   Memoria compartida (munmap + shm_unlink)
-    -   Semáforos (sem_close + sem_unlink)
+---
+
+## 🧪 Aspectos Técnicos
+
+- 🧵 **Procesamiento concurrente multiproceso** usando `fork()`.
+- 🧠 **Memoria compartida anónima** (`mmap`) sin archivos intermedios.
+- 🛡️ **Sincronización con semáforos POSIX** (`sem_t`).
+- ⏱️ **Control de tiempo** con `time()` y `usleep()`.
+
+---
+
+## 📦 Posibles Mejoras
+
+- Registro de operaciones en un archivo de log.
+- Configuración externa mediante archivo `.conf`.
+- Gestión avanzada con señales para pausar/reanudar procesos.
+- Interfaz de monitoreo CLI o gráfica.

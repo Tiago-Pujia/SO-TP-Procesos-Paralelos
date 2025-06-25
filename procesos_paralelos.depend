@@ -16,23 +16,3 @@
 	<signal.h>
 	<sys/wait.h>
 
-1749010179 source:/home/diegomendoza/Descargas/SO-TP-Procesos-Paralelos-master/main.c
-	"main.h"
-
-1749007331 /home/diegomendoza/Descargas/SO-TP-Procesos-Paralelos-master/main.h
-	<stdio.h>
-	<stdlib.h>
-	<string.h>
-	<fcntl.h>
-	<sys/mman.h>
-	<unistd.h>
-	<semaphore.h>
-	<time.h>
-	<errno.h>
-	<sys/stat.h>
-	<signal.h>
-	<sys/wait.h>
-
-1749010389 source:/home/diegomendoza/Descargas/SO-TP-Procesos-Paralelos-master/funciones.c
-	"main.h"
-
